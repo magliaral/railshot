@@ -485,9 +485,24 @@ local installation.
 first user request and takes ~30 seconds. After that it's cached for the
 lifetime of the Space.
 
+## Acknowledgements
+
+This tool stands on the shoulders of excellent open-source projects:
+
+- **[rembg](https://github.com/danielgatis/rembg)** (MIT) — AI-based
+  background removal using ONNX runtime
+- **[Pillow](https://python-pillow.org/)** (HPND) — image manipulation
+- **[NumPy](https://numpy.org/)** (BSD-3) — numerical operations
+- **[Streamlit](https://streamlit.io/)** (Apache 2.0) — web UI framework
+- **[OpenCV](https://opencv.org/)** (Apache 2.0, optional) — for
+  perspective correction
+
 ## License
 
 MIT — see [LICENSE](LICENSE).
+
+The dependencies above retain their respective licenses and are not
+redistributed as part of this repository — they are installed via pip.
 
 ## Contributing
 

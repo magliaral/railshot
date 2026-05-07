@@ -13,7 +13,7 @@ short_description: Prepare model railway photos for Rocrail / iTrain
 
 # railshot — Hugging Face Spaces version
 
-This is the Hugging Face Spaces deployment of [railshot](https://github.com/bt-unibe-ch/railshot).
+This is the Hugging Face Spaces deployment of [railshot](https://github.com/magliaral/railshot).
 
 Upload a photo of a model railway vehicle (locomotive or coach) and get back
 a clean, scaled, transparent PNG ready for use in Rocrail or iTrain.
@@ -30,7 +30,7 @@ a clean, scaled, transparent PNG ready for use in Rocrail or iTrain.
   on a track.
 
 For the full CLI, batch processing, custom rail templates, etc., see the
-[GitHub repo](https://github.com/bt-unibe-ch/railshot).
+[GitHub repo](https://github.com/magliaral/railshot).
 
 ## Privacy
 
