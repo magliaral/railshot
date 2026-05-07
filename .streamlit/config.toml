@@ -1,0 +1,23 @@
+# Streamlit configuration for railshot
+# https://docs.streamlit.io/develop/api-reference/configuration/config.toml
+
+[client]
+# "viewer" hides the Deploy button but keeps the Settings menu
+# (Dark/Light theme switcher etc.).
+# Other options: "auto" (default), "developer", "minimal"
+toolbarMode = "viewer"
+
+# Show stack traces during development; switch to "none" for production
+showErrorDetails = "stacktrace"
+
+[browser]
+# Don't send anonymous usage stats to Streamlit
+gatherUsageStats = false
+
+[server]
+# Limit uploads to 50 MB (default is 200, overkill for our use case)
+maxUploadSize = 50
+
+# Reject non-image MIME types where possible (additional safety)
+enableXsrfProtection = true
+enableCORS = false

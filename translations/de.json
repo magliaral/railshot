@@ -1,0 +1,74 @@
+{
+  "language_name": "Deutsch",
+
+  "page_title": "railshot",
+  "tagline": "Modellbahn-Fotos für digitale Steuerungssoftware aufbereiten (Rocrail, iTrain). Mehrere Bilder hochladen, Länge pro Modell setzen, alle auf einmal verarbeiten.",
+
+  "sidebar.global_settings": "⚙️ Globale Einstellungen",
+  "sidebar.global_settings_caption": "Diese gelten für **alle** Bilder im Batch.",
+  "sidebar.language": "Sprache",
+
+  "sidebar.scale": "Maßstab",
+  "sidebar.px_per_mm": "Pixel pro mm",
+  "sidebar.px_per_mm_help": "Maßstabsfaktor. EINMAL pro Sammlung festlegen — gleicher Wert für alle Fahrzeuge. Z.B. 2.0 ergibt für einen 165 mm Wagen eine Breite von 330 px.",
+  "sidebar.canvas_height": "Canvas-Höhe (px)",
+  "sidebar.canvas_height_help": "Output-PNG-Höhe. Rocrail-Standard ist 80 px.",
+
+  "sidebar.auto_corrections": "Auto-Korrekturen",
+  "sidebar.auto_rotate": "Auto-Rotation",
+  "sidebar.auto_rotate_help": "Untere Wagenkante automatisch waagrecht stellen. Sicher — wird nur bei 0.2°-5° angewendet.",
+  "sidebar.auto_perspective": "Auto-Perspektive",
+  "sidebar.auto_perspective_help": "Stirnseiten gerade richten. Experimentell — benötigt opencv-python.",
+
+  "sidebar.rail": "Schienen-Unterlage",
+  "sidebar.add_rail": "Digitale Schiene hinzufügen",
+  "sidebar.add_rail_help": "Fügt eine Schiene unter dem Modell ein.",
+  "sidebar.rail_extend": "Canvas für Schiene erweitern",
+  "sidebar.rail_extend_help": "Wenn an: Canvas wächst um Schienenhöhe. Wenn aus (Standard): Schiene wird über die Räder gelegt (realistischer).",
+
+  "sidebar.precrop": "Vor-Crop",
+  "sidebar.precrop_mode": "Modus",
+  "sidebar.precrop_off": "aus",
+  "sidebar.precrop_manual": "manuell",
+  "sidebar.precrop_auto": "automatisch",
+  "sidebar.precrop_help": "Bild VOR rembg zuschneiden, um Störungen zu entfernen.",
+  "sidebar.precrop_roi": "ROI 'X1,Y1,X2,Y2'",
+  "sidebar.precrop_roi_help": "Pixelkoordinaten im Originalfoto.",
+  "sidebar.precrop_threshold": "Helligkeits-Schwelle",
+
+  "sidebar.advanced": "Erweitert",
+  "sidebar.rembg_model": "rembg-Modell",
+  "sidebar.h_alpha": "H-Alpha-Schwelle",
+  "sidebar.v_alpha": "V-Alpha-Schwelle",
+  "sidebar.edge_clean": "Kanten-Reinigung",
+  "sidebar.pad_top": "Polsterung oben",
+
+  "main.upload_images": "📷 Bilder hochladen",
+  "main.upload_help": "Ein oder mehrere Fotos hier ablegen. Mit dem ×-Knopf einzelne Dateien entfernen.",
+  "main.batch": "📋 Stapel ({count} Bild(er))",
+  "main.batch_caption": "Output-Namen und Länge pro Bild bearbeiten. Um ein Bild zu entfernen, auf das **×** neben dem Namen in der Upload-Zone oben klicken.",
+  "main.preview": "Vorschau",
+  "main.output_name": "Output-Name",
+  "main.length_mm": "Länge (mm)",
+  "main.empty_hint": "👆 Bilder oben hochladen, um zu starten. Mehrere Dateien können per Drag-and-Drop gleichzeitig abgelegt werden.",
+
+  "process.button": "🚂 Alle {count} Bild(er) verarbeiten",
+  "process.starting": "Starte...",
+  "process.processing": "Verarbeite {name} ({i}/{total})...",
+  "process.done": "Fertig!",
+  "process.success": "{count} Bild(er) verarbeitet.",
+
+  "results.heading": "✨ Ergebnisse",
+  "results.zip_button": "📦 Alle {count} Ergebnisse als ZIP herunterladen",
+  "results.download": "📥 Herunterladen",
+  "results.failed": "Fehlgeschlagen: {error}",
+  "results.output": "Ausgabe",
+  "results.bbox": "Bounding Box",
+  "results.aspect": "Seitenverhältnis",
+  "results.length_calc": "Länge",
+  "results.rotated": "Auto-rotiert um {angle}°",
+  "results.overflow": "⚠️ Bild ist höher als der Canvas — oben abgeschnitten.",
+
+  "footer.about": "ℹ️ Über railshot",
+  "footer.about_text": "**railshot** bereitet Modellbahn-Fotos für digitale Steuerungssoftware wie Rocrail oder iTrain auf. Entwickelt für **Spur N** (1:160), funktioniert aber für jeden Maßstab mit konsistentem px-pro-mm-Faktor.\n\n**Multi-Bild-Workflow:**\n1. Mehrere Fotos in die Upload-Zone ziehen\n2. Pro Foto den Output-Namen und die Modell-Länge (mm) bearbeiten\n3. Globale Einstellungen einmal setzen (Maßstab, Auto-Rotation, Schiene, Vor-Crop)\n4. \"Alle verarbeiten\" klicken\n5. Einzelne PNGs oder alles als ZIP herunterladen\n\n**Schlüsselkonzept:** der `Pixel pro mm`-Wert definiert den Maßstab für deine *gesamte Sammlung*. Einmal setzen, dann konstant lassen — sonst sind verschiedene Fahrzeuge nicht mehr im selben Maßstab.\n\nQuelle: [github.com/magliaral/railshot](https://github.com/magliaral/railshot) | Lizenz: MIT"
+}

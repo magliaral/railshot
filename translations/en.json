@@ -1,0 +1,74 @@
+{
+  "language_name": "English",
+
+  "page_title": "railshot",
+  "tagline": "Prepare model railway photos for digital control software (Rocrail, iTrain). Upload multiple images, set length per model, process them all in one go.",
+
+  "sidebar.global_settings": "⚙️ Global settings",
+  "sidebar.global_settings_caption": "These apply to **all** images in the batch.",
+  "sidebar.language": "Language",
+
+  "sidebar.scale": "Scale",
+  "sidebar.px_per_mm": "Pixels per mm",
+  "sidebar.px_per_mm_help": "Scale factor. Set ONCE per collection — same value for all vehicles. E.g. 2.0 means a 165 mm coach becomes 330 px wide.",
+  "sidebar.canvas_height": "Canvas height (px)",
+  "sidebar.canvas_height_help": "Output PNG height. Rocrail standard is 80 px.",
+
+  "sidebar.auto_corrections": "Auto-corrections",
+  "sidebar.auto_rotate": "Auto-rotate",
+  "sidebar.auto_rotate_help": "Auto-level the bottom edge. Safe — only applies if 0.2°-5°.",
+  "sidebar.auto_perspective": "Auto-perspective",
+  "sidebar.auto_perspective_help": "Straighten end faces. Experimental — requires opencv-python.",
+
+  "sidebar.rail": "Rail underlay",
+  "sidebar.add_rail": "Add digital rail",
+  "sidebar.add_rail_help": "Place a rail under the model.",
+  "sidebar.rail_extend": "Extend canvas for rail",
+  "sidebar.rail_extend_help": "If on: canvas grows by rail height. If off (default): rail is overlaid on the wheels (more realistic).",
+
+  "sidebar.precrop": "Pre-crop",
+  "sidebar.precrop_mode": "Mode",
+  "sidebar.precrop_off": "off",
+  "sidebar.precrop_manual": "manual",
+  "sidebar.precrop_auto": "auto",
+  "sidebar.precrop_help": "Crop the image BEFORE rembg, to remove distractions.",
+  "sidebar.precrop_roi": "ROI 'X1,Y1,X2,Y2'",
+  "sidebar.precrop_roi_help": "Pixel coordinates in the original photo.",
+  "sidebar.precrop_threshold": "Brightness threshold",
+
+  "sidebar.advanced": "Advanced",
+  "sidebar.rembg_model": "rembg model",
+  "sidebar.h_alpha": "H-alpha threshold",
+  "sidebar.v_alpha": "V-alpha threshold",
+  "sidebar.edge_clean": "Edge cleanup",
+  "sidebar.pad_top": "Padding top",
+
+  "main.upload_images": "📷 Upload images",
+  "main.upload_help": "Drop one or more photos. Use the × button to remove individual files.",
+  "main.batch": "📋 Batch ({count} image(s))",
+  "main.batch_caption": "Edit output name and length per image. To remove an image, click the **×** next to its name in the upload zone above.",
+  "main.preview": "Preview",
+  "main.output_name": "Output name",
+  "main.length_mm": "Length (mm)",
+  "main.empty_hint": "👆 Upload images above to get started. You can drag-and-drop multiple files at once.",
+
+  "process.button": "🚂 Process all {count} image(s)",
+  "process.starting": "Starting...",
+  "process.processing": "Processing {name} ({i}/{total})...",
+  "process.done": "Done!",
+  "process.success": "Processed {count} image(s).",
+
+  "results.heading": "✨ Results",
+  "results.zip_button": "📦 Download all {count} result(s) as ZIP",
+  "results.download": "📥 Download",
+  "results.failed": "Failed: {error}",
+  "results.output": "Output",
+  "results.bbox": "Bounding box",
+  "results.aspect": "aspect",
+  "results.length_calc": "Length",
+  "results.rotated": "Auto-rotated by {angle}°",
+  "results.overflow": "⚠️ Image is taller than canvas — clipped at top.",
+
+  "footer.about": "ℹ️ About railshot",
+  "footer.about_text": "**railshot** prepares model railway photos for digital control software like Rocrail or iTrain. Built for **N-scale** (1:160) but works for any scale where the px-per-mm factor is consistent.\n\n**Multi-image workflow:**\n1. Drop multiple photos at once into the upload zone\n2. For each photo, edit the output name and the model length (mm)\n3. Set the global settings (scale, auto-rotate, rail, pre-crop) once\n4. Click \"Process all\"\n5. Download individual PNGs or all together as ZIP\n\n**Key concept:** the `Pixels per mm` value defines the scale for your *entire collection*. Set it once, then keep it constant — otherwise different vehicles won't be in the same scale anymore.\n\nSource: [github.com/magliaral/railshot](https://github.com/magliaral/railshot) | License: MIT"
+}
