@@ -1,70 +1,79 @@
-# rocrail_prep — Lok- und Wagenfotos für Rocrail aufbereiten
+# railshot
 
-Python-Script für **Spur-N-Sammlungen** (1:160), das Studio-Fotos von
-Modellbahn-Fahrzeugen so aufbereitet, dass sie in Rocrail beim
-Zusammenstellen eines Zugs **lückenlos aneinandergereiht** werden können:
+**Prepare model railway photos for digital control software** like Rocrail or
+iTrain. Background removal, scale-accurate sizing, optional rail underlay —
+Python CLI for batch processing.
 
-- Pixel-genauer Schnitt links/rechts (Puffer auf Puffer)
-- Massstabsgetreue Skalierung über alle Fahrzeuge
-- Default-Höhe 80 px (Rocrail-Wiki-Norm)
-- Räder auf gemeinsamer Grundlinie (Schienenkante)
-- **Optional: digitale Schiene unter den Wagen** (konsistente Optik
-  über die ganze Sammlung)
-- Optional: Auto-Rotation (Wagen waagrecht)
-- Optional: Auto-Perspektive (Stirnseiten senkrecht)
-- Optional: Pre-Crop (Studio-ROI vor rembg)
-- Transparenter PNG-Hintergrund
+Designed for **N-scale collections** (1:160) but works for any scale where
+your scaling factor (px/mm) is consistent across the roster.
+
+## What it does
+
+- Pixel-accurate left/right cropping (buffer beam to buffer beam)
+- Scale-accurate sizing across the entire collection
+- Default 80 px output height (Rocrail wiki standard)
+- Wheels aligned on a common ground line
+- Optional digital rail underlay (consistent across the whole roster)
+- Optional auto-rotation (level the underframe)
+- Optional auto-perspective (straighten end faces)
+- Optional pre-crop (studio ROI before background removal)
+- Transparent PNG output
 
 ## Setup
 
-```powershell
+```bash
 pip install "rembg[cpu]" pillow numpy
-pip install opencv-python      # nur für --auto-perspective
-pip install scipy              # optional, hilft bei --pre-crop auto
+pip install opencv-python      # only for --auto-perspective
+pip install scipy              # optional, helps with --pre-crop auto
 ```
 
-Beim ersten Lauf zieht `rembg` automatisch das ONNX-Modell
-(~170 MB für `isnet-general-use`, einmalig nach `~\.u2net\`).
+On first run, `rembg` automatically downloads its ONNX model (~170 MB for
+`isnet-general-use`, cached in `~/.u2net/`).
 
-## Schnellstart
+## Quickstart
 
 ```powershell
-python rocrail_prep.py wagen.jpg -o wagen.png `
+python railshot.py coach.jpg -o coach.png `
     --mode scale --px-per-mm 2.0 --length-mm 165 --auto-rotate --rail
 ```
 
-Das produziert ein PNG (typisch ~330×84 px wenn Schiene aktiv) mit
-transparentem Hintergrund, Wagen unten bündig auf einer Schiene.
+This produces a transparent PNG (~330×80 px when rail is enabled) with the
+coach sitting bottom-aligned on a rail.
 
-## Massstab definieren — der zentrale Wert
+## Defining the scale
 
-Der wichtigste Parameter ist **`--px-per-mm`**: wie viele Pixel pro
-Millimeter Modelllänge. Den legst du **einmal** für deine ganze
-Sammlung fest und benutzt für alle Bilder denselben Wert.
+The most important parameter is **`--px-per-mm`**: how many pixels per
+millimeter of model length. Set this **once** for your entire collection and
+use the same value for every image. Otherwise vehicles won't be in the same
+scale anymore.
 
-### Methode A: Über Höhe definieren (empfohlen für Loks mit Pantograph)
+### Method A: Define via height (recommended for locos with pantograph)
 
-1. **Höchste Lok ausmessen** (Schienenoberkante bis Dach mit
-   eingefahrenem Pantograph). Z.B. Re 460 ≈ 30 mm.
-2. **Soll-Höhe wählen:** sagen wir 60 px (lässt 20 px Reserve oben für
-   ausgefahrenen Panto, plus 4 px für Schiene).
-3. **Ausrechnen:** `60 px / 30 mm = 2.0 px/mm`
+In this method, you use the tallest locomotive in your collection as the
+anchor for the 80 px Rocrail height. This guarantees no loco gets too tall
+and the pantograph space is used optimally.
 
-Damit ergibt sich für deine Sammlung:
+1. **Measure the tallest loco** (rail head to roof with pantograph
+   retracted). E.g. Re 460 ≈ 30 mm.
+2. **Choose a target height:** say 60 px (leaves 20 px reserve at top for
+   raised pantograph).
+3. **Calculate:** `60 px / 30 mm = 2.0 px/mm`
 
-| Fahrzeug          | Länge (mm) | Output-Breite (bei 2.0 px/mm) |
-|-------------------|------------|-------------------------------|
-| Astoro Triebkopf  | 172        | 344 px                        |
-| EW IV             | 165        | 330 px                        |
-| RAe Steuerwagen   | 158        | 316 px                        |
-| Re 460            | 116        | 232 px                        |
-| Tigerli           | 58         | 116 px                        |
+This gives you for the rest of the collection:
 
-### Methode B: Über Länge definieren
+| Vehicle              | Length (mm) | Output width (at 2.0 px/mm) |
+|----------------------|-------------|------------------------------|
+| Astoro power car     | 172         | 344 px                       |
+| EW IV                | 165         | 330 px                       |
+| RAe TEE control car  | 158         | 316 px                       |
+| Re 460               | 116         | 232 px                       |
+| Eem 923 (Tigerli)    |  58         | 116 px                       |
 
-1. **Hauptwagen ausmessen** (z.B. EW IV ≈ 165 mm).
-2. **Soll-Breite entscheiden** (z.B. 250 px).
-3. **Ausrechnen:** `250 px / 165 mm = 1.515 px/mm`
+### Method B: Define via length
+
+1. **Measure the main coach** (e.g. EW IV ≈ 165 mm).
+2. **Choose a target width** (e.g. 250 px).
+3. **Calculate:** `250 px / 165 mm = 1.515 px/mm`
 
 | px-per-mm | EW IV (165 mm) | Re 460 (116 mm) | Tigerli (58 mm) |
 |-----------|----------------|-----------------|------------------|
@@ -72,110 +81,108 @@ Damit ergibt sich für deine Sammlung:
 | 1.82      | 300 px         | 211 px          | 105 px           |
 | 2.0       | 330 px         | 232 px          | 116 px           |
 
-## Studio-Setup für saubere Resultate
+## Studio setup for clean results
 
-1. **Klarer Hintergrund** rund um den Wagen — keine zweite Lok, keine
-   dunklen Wände, keine Bildschirme im Sichtfeld.
-2. **Wagen formatfüllend** — möglichst 90 % der Bildbreite, damit rembg
-   genug Pixel zum Erkennen hat.
-3. **Frontale Sicht** — Kamera parallel zum Wagen ausrichten.
-4. **Konstante Beleuchtung** — vermeidet harte Schatten unter dem Wagen.
-5. **Helle Unterlage** — kein Schienenstück fotografieren! Das Script
-   fügt eine digitale Schiene später hinzu (siehe nächster Abschnitt).
+1. **Clear background** around the model — no other vehicles, no dark walls,
+   no monitors in the field of view.
+2. **Frame-filling** — model should fill ~90% of the photo width, so rembg
+   has enough pixels to recognize the subject.
+3. **Frontal view** — camera parallel to the model. Then `--auto-perspective`
+   isn't needed.
+4. **Constant lighting** — avoids harsh shadows under the model.
+5. **Plain underlay** — don't photograph a real rail underneath! The script
+   adds a digital rail later (see next section).
 
-## Digitale Schiene unter dem Wagen
+## Digital rail underlay
 
-Statt eine Schiene mitzufotografieren (was rembg verwirren kann), legt
-das Script eine **konsistente digitale Schiene** unter jeden Wagen.
-Vorteile:
+Instead of photographing a real rail (which can confuse rembg), the script
+overlays a **consistent digital rail** under each model. Advantages:
 
-- Schiene ist **pixel-genau gleich** auf allen Bildern
-- rembg muss sich nicht mit Schienen-Details rumärgern
-- Schiene wird **auf Wagenbreite zugeschnitten** (nicht skaliert) —
-  Schwellen-Abstände bleiben konstant
-- Bei aneinandergereihten Wagen in Rocrail wirkt die Schiene als
-  durchgehende Linie
+- Rail is **pixel-perfect identical** on all images
+- rembg doesn't have to deal with rail details
+- Rail is **cropped to model width** (not scaled) — sleeper spacing stays
+  constant
+- When models are placed adjacent in Rocrail, the rail forms a continuous line
 
-### Verwendung
+### Usage
 
 ```powershell
-python rocrail_prep.py wagen.jpg -o wagen.png `
+python railshot.py coach.jpg -o coach.png `
     --mode scale --px-per-mm 2.0 --length-mm 165 --auto-rotate `
     --rail
 ```
 
-Das Script erwartet eine Datei `rail.png` im selben Ordner wie das
-Script. Diese ist im Repository mitgeliefert (4 px hoch, 800 px breit).
+The script expects a file named `rail.png` in the same folder as the script.
+A default version is included in this repository (4 px high, 800 px wide).
 
-### Eigene Schiene gestalten
+### Customizing the rail
 
-Wenn dir die mitgelieferte Schiene nicht gefällt, erstelle eine eigene
-PNG-Datei mit folgenden Eigenschaften:
+If the bundled rail doesn't suit your taste, create your own PNG with these
+properties:
 
-- **Höhe:** 3-8 px (subtil, sonst dominiert sie das Bild)
-- **Breite:** beliebig, mindestens so breit wie der längste Wagen
-- **Format:** PNG mit Alpha-Kanal
-- **Inhalt:** dein gewünschtes Schienen-Aussehen (Schwellen,
-  Schienenkopf, Schotter etc.)
+- **Height:** 3–8 px (subtle — too tall and it dominates the image)
+- **Width:** any, at least as wide as your longest model
+- **Format:** PNG with alpha channel
+- **Content:** sleepers, rail head, ballast — your choice
 
-Dann mit `--rail-image meine_schiene.png` einbinden.
+Use it via `--rail-image my_rail.png`.
 
-### Canvas-Verhalten
+### Canvas behavior
 
-- **Default (`--rail-extend`):** Canvas wird unten um Schienenhöhe
-  vergrössert. Wagen bleibt unverändert, Schiene kommt drunter dazu.
-- **Alternative (`--no-rail-extend`):** Schiene wird über die untere
-  Wagenkante gelegt. Canvas-Höhe bleibt gleich, dafür wird ein paar
-  Pixel des Wagenbodens überdeckt.
+- **Default (no flag):** the rail is **overlaid** on the bottom edge of the
+  wheels. The wheels visually rest on the rail (this is the realistic look).
+- **`--rail-extend`:** the canvas grows downwards by the rail height. The
+  rail hangs **below** the wheels.
 
-## Pre-Crop: Störquellen ausserhalb des Studios eliminieren
+## Pre-crop: eliminate noise outside the studio
 
-Wenn nicht alles im Bild zum Studio gehört (Kabel, andere Loks am Rand,
-Wandelement), kann ein Pre-Crop **vor** rembg viel helfen:
+If your photo contains things outside the studio area (other locos, cables,
+wall edges), a pre-crop **before** rembg helps a lot:
 
 ```powershell
-python rocrail_prep.py wagen.jpg -o wagen.png `
+python railshot.py coach.jpg -o coach.png `
     --mode scale --px-per-mm 2.0 --length-mm 165 `
     --pre-crop "170,80,1965,820"
 ```
 
-Format: `"X1,Y1,X2,Y2"` in Pixeln des Originalfotos. Koordinaten kannst
-du in Paint, IrfanView oder GIMP auslesen — Maus auf die obere linke und
-untere rechte Ecke deines Studios zeigen, Pixelposition ablesen.
+Format: `"X1,Y1,X2,Y2"` in pixels of the original photo. Read coordinates in
+Paint, IrfanView, GIMP, or any image viewer that shows the cursor position.
 
-Bei festem Studio-Setup misst du die ROI **einmal** und nutzt sie für
-alle weiteren Fotos.
+For a fixed studio setup, you measure the ROI **once** and reuse it for all
+photos.
 
-Auto-Variante (sucht hellste Region):
+Auto variant (finds the brightest region):
 
 ```powershell
 --pre-crop "auto"
---pre-crop "auto 180"   # mit eigener Helligkeitsschwelle
+--pre-crop "auto 180"   # custom brightness threshold
 ```
 
-## Auto-Rotation und Auto-Perspektive
+Works when the studio is clearly brighter than its surroundings.
+
+## Auto-rotation and auto-perspective
 
 ```powershell
-# Untere Wagenkante auf horizontal ausrichten (sicher)
+# Auto-level the bottom of the model (safe)
 --auto-rotate
 
-# Plus Stirnseiten gerade ziehen (experimentell, braucht opencv)
+# Plus straighten end faces (experimental, requires opencv)
 --auto-rotate --auto-perspective
 ```
 
-Beide Korrekturen haben Sicherheitsgrenzen eingebaut: zu starke
-Korrekturen (>5° Rotation, >30 px Perspektivverschiebung) werden
-ignoriert und das Original bleibt unverändert.
+Both corrections have built-in safety limits: corrections >5° rotation or
+>30 px perspective are ignored, leaving the original unchanged. So
+auto-correction can only help or do nothing — never break things.
 
-Im Terminal-Output siehst du was passiert ist:
+The terminal output tells you what happened:
 
 ```
-OK  ew4.jpg  ->  ew4.png  (330 x 84 px)  [rot -0.64°, bbox 1478x233 (aspect 6.34)]
+OK  ew4.jpg  ->  ew4.png  (330 x 80 px)  [rot -0.64°, bbox 1478x233 (aspect 6.34)]
 ```
 
-## Batch-Verarbeitung mit lengths.json
+## Batch processing with lengths.json
 
-`lengths.json` für deine ganze Sammlung anlegen:
+Create a `lengths.json` mapping filenames to model lengths:
 
 ```json
 {
@@ -187,18 +194,23 @@ OK  ew4.jpg  ->  ew4.png  (330 x 84 px)  [rot -0.64°, bbox 1478x233 (aspect 6.3
 }
 ```
 
-Schlüssel = Dateiname **ohne** Extension (oder mit, beides geht).
-Werte = Modelllänge in mm.
+Keys = filename **without** extension (or with — both work).
+Values = model length in mm.
+
+Run:
 
 ```powershell
-python rocrail_prep.py ./fotos -o ./out `
+python railshot.py ./photos -o ./out `
     --mode scale --px-per-mm 2.0 --lengths lengths.json `
     --pre-crop "170,80,1965,820" --auto-rotate --rail
 ```
 
-## PowerShell-Funktionen für den Alltag
+Missing entries fall back to `--length-mm` if provided, otherwise raise an
+error.
 
-In dein PowerShell-Profil schreiben (`notepad $PROFILE`):
+## PowerShell shortcuts for daily use
+
+Add to your PowerShell profile (`notepad $PROFILE`):
 
 ```powershell
 function rrp-one {
@@ -207,214 +219,222 @@ function rrp-one {
         [Parameter(Mandatory)][string]$Out,
         [Parameter(Mandatory)][int]$LengthMm
     )
-    python rocrail_prep.py $In -o $Out `
+    python railshot.py $In -o $Out `
         --mode scale --px-per-mm 2.0 --length-mm $LengthMm `
         --pre-crop "170,80,1965,820" --auto-rotate --rail
 }
 
 function rrp-batch {
     param(
-        [string]$In = "./fotos",
+        [string]$In = "./photos",
         [string]$Out = "./out"
     )
-    python rocrail_prep.py $In -o $Out `
+    python railshot.py $In -o $Out `
         --mode scale --px-per-mm 2.0 --lengths lengths.json `
         --pre-crop "170,80,1965,820" --auto-rotate --rail
 }
 ```
 
-Aufruf danach:
+Then just:
 
 ```powershell
-rrp-one -In wagen.jpg -Out wagen.png -LengthMm 165
+rrp-one -In coach.jpg -Out coach.png -LengthMm 165
 rrp-batch
 ```
 
-## Debug-Modus
+## Debug mode
 
-Falls etwas schiefgeht, alle Zwischenschritte als PNG dumpen:
+If something goes wrong, dump all intermediate steps:
 
 ```powershell
-python rocrail_prep.py wagen.jpg -o wagen.png `
-    [...andere Optionen...] `
+python railshot.py coach.jpg -o coach.png `
+    [...other options...] `
     --debug-dir ./debug --verbose
 ```
 
-Erzeugt in `./debug/wagen/` einen Ordner mit nummerierten PNG-Dateien:
+Creates `./debug/coach/` with numbered PNGs:
 
-| Datei                        | Inhalt                          |
-|------------------------------|---------------------------------|
-| `00_input.png`               | Original-Foto                   |
-| `01_pre_crop.png`            | Nach Pre-Crop                   |
-| `02_rembg.png`               | Nach Hintergrundentfernung      |
-| `03_edge_clean.png`          | Halbtransparente Reste entfernt |
-| `04_rotated_+0.64deg.png`    | Nach Auto-Rotation              |
-| `05_perspective.png`         | Nach Auto-Perspektive           |
-| `06_cropped_NNNNxNNN.png`    | Nach Bbox-Crop (mit Grösse!)    |
-| `07_scaled_330x60.png`       | Nach Skalierung                 |
-| `08_with_rail_330x64.png`    | Nach Schienen-Hinzufügung       |
-| `09_final_330x80.png`        | Final im Canvas                 |
+| File                          | Content                          |
+|-------------------------------|----------------------------------|
+| `00_input.png`                | Original photo                   |
+| `01_pre_crop.png`             | After pre-crop                   |
+| `02_rembg.png`                | After background removal         |
+| `03_edge_clean.png`           | Halo cleanup                     |
+| `04_rotated_+0.64deg.png`     | After auto-rotation              |
+| `05_perspective.png`          | After auto-perspective           |
+| `06_cropped_NNNNxNNN.png`     | After bbox crop (with size!)     |
+| `07_scaled_330x52.png`        | After scaling                    |
+| `08_with_rail_330x52.png`     | After rail overlay               |
+| `09_final_330x80.png`         | Final on canvas                  |
 
-## Output-Datei überprüfen
+This shows exactly where in the pipeline things go wrong.
 
-Manche Bildbetrachter zeigen Transparenz nicht korrekt an. Verifizieren:
+## Verifying the output
+
+Some image viewers don't display transparency correctly (showing it as
+black or white). To verify:
 
 ```powershell
-python -c "from PIL import Image; img = Image.open('test.png'); print('Mode:', img.mode)"
+python -c "from PIL import Image; img = Image.open('out.png'); print('Mode:', img.mode)"
 ```
 
-Erwartung: `Mode: RGBA`. Bei `Mode: RGB` fehlt der Alpha-Kanal.
+Expected: `Mode: RGBA`. If `Mode: RGB`, the alpha channel is missing.
 
-Visuell: PyCharm zeigt Transparenz als **graues Schachbrett-Muster**.
-Auch GIMP, Paint.NET und Browser machen das richtig.
+Visually: PyCharm shows transparency as a **gray checkerboard pattern**.
+GIMP, Paint.NET, and modern browsers all do this correctly.
 
-## Rocrail-Bildgrösse
+## Rocrail image specs
 
-Das Rocrail-Wiki sagt:
-- **Höhe: 80 px** (Norm)
-- **Maximale Dateigrösse: 50 KB**
-- Format: PNG mit transparentem Hintergrund
+Per the Rocrail wiki:
+- **Height:** 80 px (standard)
+- **Max file size:** 50 KB
+- **Format:** PNG with transparent background
 
-Bei den typischen Pixelgrössen im Spur-N-Bereich (200-400 px Breite,
-80 px Höhe) liegen freigestellte Wagen-PNGs typischerweise bei 15-35 KB
-— die 50 KB Limitation ist also unkritisch.
+For typical N-scale photos at 200–400 px width × 80 px height, output PNGs
+land at 15–35 KB — well below the 50 KB limit.
 
-**Wichtig zur Aneinanderreihung:** in Rocrail definierst du jeden
-Wagen mit seiner Modelllänge in mm. Rocrail setzt dann selber die
-Wagen zum Zug zusammen anhand dieser Längen. Dein einzelnes Wagen-Bild
-braucht also keinen Zug zu enthalten.
+**Important on train assembly:** in Rocrail you define each wagon with its
+model length in mm. Rocrail then composes trains at runtime using these
+lengths. Your individual wagon image doesn't need to contain a full train —
+that's done by Rocrail dynamically.
 
-## Alle Optionen
+## All options
 
-| Flag                    | Default             | Zweck                                         |
-|-------------------------|---------------------|-----------------------------------------------|
-| `--mode`                | `scale`             | `height` oder `scale`                         |
-| `--canvas-height`       | `80`                | Output-Pixelhöhe (Rocrail-Norm)               |
-| `--max-width`           | —                   | Hard-Cap Breite (height-Modus)                |
-| `--px-per-mm`           | —                   | **Massstab: Pixel pro mm Modelllänge**        |
-| `--length-mm`           | —                   | Länge des aktuellen Fahrzeugs in mm           |
-| `--lengths`             | —                   | JSON mit pro-Datei-Längen                     |
-| `--pre-crop`            | —                   | ROI vor rembg (`X1,Y1,X2,Y2` oder `auto`)     |
-| `--pre-crop-padding`    | `20`                | Sicherheitsrand um ROI                        |
-| `--auto-rotate`         | aus                 | Untere Wagenkante waagrecht stellen           |
-| `--min-rotation-deg`    | `0.2`               | Untere Schwelle (sonst keine Rotation)        |
-| `--max-rotation-deg`    | `5.0`               | Obere Schwelle (Schutz vor Fehlern)           |
-| `--auto-perspective`    | aus                 | Stirnseiten senkrecht stellen                 |
-| `--min-perspective-px`  | `1.5`               | Untere Schwelle                               |
-| `--max-perspective-px`  | `30`                | Obere Schwelle                                |
-| `--h-alpha-threshold`   | `128`               | Strenge horizontal (puffer-genau)             |
-| `--v-alpha-threshold`   | `32`                | Strenge vertikal (nachgiebig)                 |
-| `--h-min-column-pixels` | `3`                 | Filter gegen Cutout-Artefakte                 |
-| `--edge-clean-threshold`| `64`                | Halbtransparenz-Schleier killen               |
-| `--pad-left`            | `0`                 | Padding links (= 0 für Rocrail!)              |
-| `--pad-right`           | `0`                 | Padding rechts (= 0 für Rocrail!)             |
-| `--pad-top`             | `1`                 | Padding oben                                  |
-| `--pad-bottom`          | `0`                 | Padding unten                                 |
-| **`--rail`**            | aus                 | **Schiene unter Wagen legen**                 |
-| **`--rail-image`**      | `rail.png`          | **Pfad zum Schienen-Template**                |
-| **`--no-rail-extend`**  | —                   | **Schiene überlagern statt Canvas erweitern** |
-| `--align`               | `bottom`            | Ausrichtung im Canvas                         |
-| `--model`               | `isnet-general-use` | rembg-Modell                                  |
-| `--debug-dir`           | —                   | Zwischenschritte als PNG ablegen              |
-| `-v` / `--verbose`      | aus                 | Mehr Debug-Output bei Fehlern                 |
+| Flag                    | Default             | Purpose |
+|-------------------------|---------------------|---------|
+| `--mode`                | `scale`             | `height` or `scale` |
+| `--canvas-height`       | `80`                | Output height in px (Rocrail standard) |
+| `--max-width`           | —                   | Hard cap on width (height mode) |
+| `--px-per-mm`           | —                   | **Scale: pixels per mm of model length** |
+| `--length-mm`           | —                   | Length of current vehicle in mm |
+| `--lengths`             | —                   | JSON with per-file lengths |
+| `--pre-crop`            | —                   | ROI before rembg (`X1,Y1,X2,Y2` or `auto`) |
+| `--pre-crop-padding`    | `20`                | Safety padding around ROI |
+| `--auto-rotate`         | off                 | Level the bottom edge |
+| `--min-rotation-deg`    | `0.2`               | Lower threshold (no rotation below) |
+| `--max-rotation-deg`    | `5.0`               | Upper threshold (probably error) |
+| `--auto-perspective`    | off                 | Straighten end faces |
+| `--min-perspective-px`  | `1.5`               | Lower threshold |
+| `--max-perspective-px`  | `30`                | Upper threshold |
+| `--h-alpha-threshold`   | `128`               | Strict horizontal threshold |
+| `--v-alpha-threshold`   | `32`                | Lenient vertical threshold |
+| `--h-min-column-pixels` | `3`                 | Filter against cutout artefacts |
+| `--edge-clean-threshold`| `64`                | Halo cleanup threshold |
+| `--pad-left`            | `0`                 | Padding left (= 0 for Rocrail!) |
+| `--pad-right`           | `0`                 | Padding right (= 0 for Rocrail!) |
+| `--pad-top`             | `1`                 | Padding top |
+| `--pad-bottom`          | `0`                 | Padding bottom |
+| **`--rail`**            | off                 | **Place rail under model** |
+| **`--rail-image`**      | `rail.png`          | **Path to rail template** |
+| **`--rail-extend`**     | off                 | **Extend canvas instead of overlay** |
+| `--align`               | `bottom`            | Vertical alignment in canvas |
+| `--model`               | `isnet-general-use` | rembg model |
+| `--debug-dir`           | —                   | Save intermediate steps as PNG |
+| `-v` / `--verbose`      | off                 | More verbose error output |
 
-## Modell-Empfehlung für rembg
+## rembg model recommendations
 
-- `isnet-general-use` — bestes Allround-Resultat, etwas langsamer
-- `u2net` — robuster Klassiker
-- `u2netp` — schnell und klein, etwas weniger genau
+- `isnet-general-use` — best all-rounder, slightly slower
+- `u2net` — robust classic
+- `u2netp` — fast and small, slightly less accurate
 
-Bei spiegelnden Loks oder feinen Stromabnehmern liefert
-`isnet-general-use` meist den saubersten Cutout.
+For shiny locos or fine pantographs, `isnet-general-use` typically gives
+the cleanest cutout.
 
-## Fehlerbilder und Lösungen
+## Troubleshooting
 
-### Kein transparenter Hintergrund (alles schwarz)
+### No transparent background (everything black)
 
-Bekannter rembg-Bug. Das Script hat einen Workaround eingebaut, der bei
-Bedarf automatisch greift. Falls trotzdem schwarz statt transparent:
+Known rembg quirk. The script has a workaround built in that activates
+when needed. If still black:
 
-```powershell
+```bash
 pip install "rembg[cpu]" --upgrade
 ```
 
-### Wagen wird abgeschnitten links/rechts
+### Model gets cut off left/right
 
 ```powershell
---h-alpha-threshold 96    # weniger streng (default 128)
---pad-left 1 --pad-right 1   # 1 px Sicherheit
+--h-alpha-threshold 96       # less strict (default 128)
+--pad-left 1 --pad-right 1   # 1 px safety
 ```
 
-### Stromabnehmer/Antenne fehlt oben
+### Pantograph/antenna missing at top
 
 ```powershell
---v-alpha-threshold 16    # nachgiebiger (default 32)
+--v-alpha-threshold 16    # more lenient (default 32)
 --pad-top 3
 ```
 
-### Halo-Schleier um Wagen
+### Halo around model
 
 ```powershell
---edge-clean-threshold 96    # strenger (default 64)
+--edge-clean-threshold 96    # stricter (default 64)
 ```
 
-### Lücken zwischen Wagen in Rocrail
+### Gaps between coaches in Rocrail
 
 ```powershell
---edge-clean-threshold 96 --h-alpha-threshold 160    # beide strenger
+--edge-clean-threshold 96 --h-alpha-threshold 160    # both stricter
 ```
 
-### Wagen ist im Output zu klein/gross
+### Model too small/large in output
 
-`--px-per-mm` anpassen. **Aber**: wenn du mittendrin änderst, müssen
-**alle** Wagen mit dem neuen Wert neu generiert werden — sonst zerfällt
-der gemeinsame Massstab.
+Adjust `--px-per-mm`. **But:** if you change this mid-collection, **all**
+models must be regenerated with the new value — otherwise the shared
+scale breaks.
 
-### Schiene wirkt zu prominent
+### Rail too prominent
 
-Die mitgelieferte `rail.png` durch eine eigene, dezentere Variante
-ersetzen. Dünner machen (3 px statt 4 px), Farben gedeckter wählen,
-weniger Schwellenkontrast.
+Replace the bundled `rail.png` with a slimmer custom version. Make it
+thinner (3 px instead of 4 px), use muted colors, less sleeper contrast.
 
-### Schiene wird nicht gefunden
+### Rail file not found
 
 ```
-FileNotFoundError: Schienen-Datei nicht gefunden: ...
+FileNotFoundError: Rail file not found: ...
 ```
 
-`rail.png` muss im selben Ordner wie `rocrail_prep.py` liegen — oder
-expliziten Pfad mit `--rail-image C:\pfad\zu\schiene.png` angeben.
+`rail.png` must be in the same folder as `railshot.py` — or pass an
+explicit path with `--rail-image C:\path\to\my_rail.png`.
 
-### Auto-Perspektive macht das Bild schlechter
+### Auto-perspective makes the image worse
 
-`--auto-perspective` weglassen. Bei Wagen mit gerundeten Übergängen
-schwer zuverlässig zu erkennen — mechanisch korrekt fotografieren ist
-robuster.
+Drop `--auto-perspective`. End-face detection is unreliable on rounded
+transitions — better to shoot straight mechanically.
 
-### Pre-Crop schneidet den Wagen ab
+### Pre-crop cuts off the model
 
-ROI-Koordinaten in Paint/GIMP nochmal nachmessen. Pufferbohlen müssen
-**innerhalb** der ROI sein. Tipp: `--pre-crop-padding 30` als
-Sicherheitsabstand.
+Re-measure ROI coordinates in Paint/GIMP. Buffer beams must be **inside**
+the ROI. Tip: `--pre-crop-padding 30` gives extra safety.
 
-## Workflow-Empfehlung für eine ganze Sammlung
+## Recommended workflow for a complete collection
 
-1. **Studio-Setup einmal sauber bauen** und nicht mehr verändern.
-2. **Höchste Lok ausmessen** → bestimmt `--px-per-mm`.
-3. **Pre-Crop-ROI ausmessen** — einmal, gilt für alle Bilder.
-4. **Test-Bild verarbeiten**, Ergebnis in Rocrail ansehen, ggf. Massstab
-   nachjustieren.
-5. **Schienen-Optik anpassen** — falls nötig `rail.png` editieren.
-6. **PowerShell-Funktionen anlegen** mit deinen festen Parametern.
-7. **`lengths.json`** für alle Wagen pflegen.
-8. **Sammlung im Batch durchlaufen**, Resultate in Rocrail-Image-Ordner.
+1. **Build a fixed studio setup** and don't change it.
+2. **Measure the tallest loco** → determines `--px-per-mm`.
+3. **Measure the pre-crop ROI** — once, reused for everything.
+4. **Process a test image**, view in Rocrail, adjust scale if needed.
+5. **Customize rail.png** if the default doesn't fit.
+6. **Set up PowerShell shortcuts** with your fixed parameters.
+7. **Maintain `lengths.json`** for all models.
+8. **Run the batch**, copy results to your Rocrail image folder.
 
-## Was das Script NICHT macht
+## What this tool does NOT do
 
-- Mehrere Fahrzeuge auf einem Foto erkennen — bitte ein Wagen pro Foto.
-- Spiegelung oder Drehen für die "andere Seite" — wenn du das brauchst,
-  fotografiere beide Seiten oder nutze Rocrails Mirror-Option.
-- Farb-/Helligkeitskorrektur — geht idealerweise schon beim
-  Fotografieren (Weissabgleich, gleichmässiges Licht).
-- Komplette Züge zusammensetzen — das macht Rocrail selber zur Laufzeit
-  anhand der Wagen-Längendefinitionen.
+- Detect multiple vehicles in one photo — please, one model per photo.
+- Mirror/flip for the "other side" — shoot both sides or use mirror options
+  in your control software.
+- Color or brightness correction — best done at capture time (white balance,
+  even lighting).
+- Compose full trains — that's done by Rocrail/iTrain at runtime using your
+  per-model length definitions.
+
+## License
+
+MIT — see [LICENSE](LICENSE).
+
+## Contributing
+
+Issues, ideas, and pull requests welcome. The tool was developed for
+SBB-themed N-scale photography but should work for any scale and railway
+network.
