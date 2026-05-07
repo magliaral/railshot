@@ -1,0 +1,12 @@
+# Core dependencies (required)
+rembg[cpu]>=2.0.50
+Pillow>=10.0.0
+numpy>=1.24.0
+
+# Optional: needed only for --auto-perspective
+# Install separately if needed: pip install opencv-python
+# opencv-python>=4.8.0
+
+# Optional: helps with --pre-crop auto (connected component analysis)
+# Install separately if needed: pip install scipy
+# scipy>=1.10.0
