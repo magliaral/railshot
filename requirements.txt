@@ -1,12 +1,14 @@
-# Core dependencies (required)
+# Core dependencies (required for CLI)
 rembg[cpu]>=2.0.50
 Pillow>=10.0.0
 numpy>=1.24.0
 
-# Optional: needed only for --auto-perspective
-# Install separately if needed: pip install opencv-python
+# Web UI (optional — only needed if you run app.py)
+streamlit>=1.30.0
+
+# Optional: needed for --auto-perspective
+# Uncomment or install separately:
 # opencv-python>=4.8.0
 
-# Optional: helps with --pre-crop auto (connected component analysis)
-# Install separately if needed: pip install scipy
+# Optional: helps with --pre-crop auto
 # scipy>=1.10.0

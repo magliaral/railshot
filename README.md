@@ -27,10 +27,31 @@ pip install opencv-python      # only for --auto-perspective
 pip install scipy              # optional, helps with --pre-crop auto
 ```
 
+Or just install everything from `requirements.txt`:
+
+```bash
+pip install -r requirements.txt
+```
+
 On first run, `rembg` automatically downloads its ONNX model (~170 MB for
 `isnet-general-use`, cached in `~/.u2net/`).
 
-## Quickstart
+## Web UI (optional)
+
+A minimal Streamlit-based web UI is included as `app.py`. Run it locally:
+
+```bash
+streamlit run app.py
+```
+
+Your browser opens automatically at `http://localhost:8501`. Upload a photo,
+adjust the sliders in the sidebar, click **Process**, download the result.
+
+The web UI is also designed to deploy directly to **Hugging Face Spaces**
+(see `README_huggingface.md` and the deployment section at the bottom of
+this file).
+
+## Quickstart (CLI)
 
 ```powershell
 python railshot.py coach.jpg -o coach.png `
@@ -428,6 +449,41 @@ the ROI. Tip: `--pre-crop-padding 30` gives extra safety.
   even lighting).
 - Compose full trains — that's done by Rocrail/iTrain at runtime using your
   per-model length definitions.
+
+## Deploy to Hugging Face Spaces
+
+The web UI can be deployed to [Hugging Face Spaces](https://huggingface.co/spaces)
+for free, giving you (or anyone) a public URL to use the tool without any
+local installation.
+
+**Steps:**
+
+1. Create a free account at [huggingface.co](https://huggingface.co)
+2. Click "New Space", choose **Streamlit** as SDK, name it `railshot` (or whatever you prefer), free CPU tier is sufficient
+3. Clone your new Space repository:
+   ```bash
+   git clone https://huggingface.co/spaces/YOUR_USERNAME/railshot
+   cd railshot
+   ```
+4. Copy these files from this repo into the cloned Space repo:
+   - `app.py`
+   - `railshot.py`
+   - `rail.png`
+   - `requirements.txt`
+   - **Rename** `README_huggingface.md` to `README.md` (it has the YAML
+     config header that HF needs)
+5. Push to HF:
+   ```bash
+   git add .
+   git commit -m "Initial deploy"
+   git push
+   ```
+6. Wait ~3-5 minutes for the build, then your Space is live at
+   `https://huggingface.co/spaces/YOUR_USERNAME/railshot`
+
+**Note:** the first model download (~170 MB rembg model) happens on the
+first user request and takes ~30 seconds. After that it's cached for the
+lifetime of the Space.
 
 ## License
 
