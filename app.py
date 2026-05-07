@@ -59,6 +59,60 @@ TRANSLATIONS = _load_translations()
 DEFAULT_LANG = "en"
 
 
+def _detect_browser_language() -> Optional[str]:
+    """
+    Try to detect the user's preferred language from the browser's
+    Accept-Language header. Returns the language code if it matches
+    one we have translations for, otherwise None.
+
+    The Accept-Language header looks like:
+        "de-CH,de;q=0.9,en;q=0.8,fr;q=0.7"
+    We parse it, sort by quality, and try to match against available
+    translations (using just the primary tag, e.g. "de" not "de-CH").
+    """
+    try:
+        # st.context.headers is available since Streamlit 1.36
+        headers = st.context.headers
+    except Exception:
+        return None
+
+    if not headers:
+        return None
+
+    accept_lang = headers.get("Accept-Language") or headers.get("accept-language")
+    if not accept_lang:
+        return None
+
+    # Parse the header: split by comma, then by ";q=" for quality value
+    candidates: list[tuple[float, str]] = []
+    for entry in accept_lang.split(","):
+        entry = entry.strip()
+        if not entry:
+            continue
+        if ";q=" in entry:
+            tag, q_str = entry.split(";q=", 1)
+            try:
+                q = float(q_str)
+            except ValueError:
+                q = 1.0
+        else:
+            tag = entry
+            q = 1.0
+        # Only keep the primary language tag ("de-CH" -> "de")
+        primary = tag.split("-", 1)[0].strip().lower()
+        candidates.append((q, primary))
+
+    # Sort by descending quality
+    candidates.sort(key=lambda x: x[0], reverse=True)
+
+    # Return first one we have translations for
+    available = set(TRANSLATIONS.keys())
+    for _, lang in candidates:
+        if lang in available:
+            return lang
+    return None
+
+
 def _t(key: str, **fmt) -> str:
     """
     Translate a key into the currently selected language. Falls back to
@@ -84,12 +138,69 @@ def _t(key: str, **fmt) -> str:
 # ============================================================
 # Page config
 # ============================================================
+# Use logo file if available, otherwise emoji fallback
+_logo_path = Path(__file__).parent / "assets" / "favicon-180.png"
+_page_icon = str(_logo_path) if _logo_path.exists() else "🚂"
+
 st.set_page_config(
     page_title="railshot",
-    page_icon="🚂",
+    page_icon=_page_icon,
     layout="wide",
     initial_sidebar_state="expanded",
 )
+
+
+# ============================================================
+# Custom CSS — visual polish on top of the theme
+# ============================================================
+st.markdown("""
+<style>
+    /* Tighter top padding so the title sits closer to the top */
+    .block-container { padding-top: 2rem; padding-bottom: 4rem; }
+
+    /* Title with a subtle accent line on the left */
+    h1 {
+        border-left: 4px solid var(--primary-color, #E85D5D);
+        padding-left: 0.75rem;
+        margin-bottom: 0.25rem !important;
+    }
+
+    /* Subtle separator look for st.divider() */
+    hr { opacity: 0.3; }
+
+    /* Image previews in the batch table — soft shadow + rounded corners */
+    [data-testid="stImage"] img {
+        border-radius: 6px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Make the file uploader stand out a bit more */
+    [data-testid="stFileUploaderDropzone"] {
+        border: 1.5px dashed rgba(232, 93, 93, 0.4);
+        transition: border-color 0.2s ease, background-color 0.2s ease;
+    }
+    [data-testid="stFileUploaderDropzone"]:hover {
+        border-color: rgba(232, 93, 93, 0.8);
+    }
+
+    /* Primary action buttons get a tiny bit of breathing room */
+    .stButton > button[kind="primary"] {
+        font-weight: 600;
+        letter-spacing: 0.01em;
+    }
+
+    /* Caption text slightly more muted */
+    [data-testid="stCaptionContainer"] {
+        opacity: 0.75;
+    }
+
+    /* Reduce the visual weight of metric labels */
+    [data-testid="stMetricLabel"] {
+        opacity: 0.7;
+        font-size: 0.875rem;
+    }
+</style>
+""", unsafe_allow_html=True)
 
 
 # ============================================================
@@ -173,23 +284,98 @@ if "results" not in st.session_state:
 
 
 # ============================================================
-# Header
+# Header — logo + tagline (theme-aware)
 # ============================================================
-st.title("🚂 " + _t("page_title"))
-st.caption(_t("tagline"))
+# Streamlit fires a rerun when the user toggles theme in the Settings
+# menu, so reading st.context.theme.type per-render is enough to update
+# the logo. For users on "Use system setting", we additionally inject a
+# CSS @media query so the logo follows the OS theme without a reload.
+_assets = Path(__file__).parent / "assets"
+_logo_light = _assets / "logo-light-small.png"
+_logo_dark = _assets / "logo-dark-small.png"
+
+
+def _img_to_data_uri(path: Path) -> str:
+    """Encode a PNG file as a base64 data: URI for inline embedding."""
+    import base64
+    raw = path.read_bytes()
+    b64 = base64.b64encode(raw).decode("ascii")
+    return f"data:image/png;base64,{b64}"
+
+
+def _detect_streamlit_theme() -> str:
+    """Read Streamlit's currently-rendered theme. Returns 'light' or 'dark'."""
+    try:
+        t = st.context.theme.type
+        return t if t in ("light", "dark") else "light"
+    except Exception:
+        return "light"
+
+
+if _logo_light.exists() and _logo_dark.exists():
+    light_uri = _img_to_data_uri(_logo_light)
+    dark_uri = _img_to_data_uri(_logo_dark)
+    current_theme = _detect_streamlit_theme()
+    # Pick the right logo for THIS render based on Streamlit's theme.
+    # If the user toggles theme in Settings, Streamlit triggers a rerun
+    # so this re-evaluates with the new theme.
+    primary_uri = dark_uri if current_theme == "dark" else light_uri
+    fallback_uri = light_uri if current_theme == "dark" else dark_uri
+
+    head_cols = st.columns([1, 6])
+    with head_cols[0]:
+        st.markdown(f"""
+            <style>
+            .railshot-logo {{
+                width: 120px;
+                height: 120px;
+                background-size: contain;
+                background-repeat: no-repeat;
+                background-position: center;
+                background-image: url('{primary_uri}');
+            }}
+            /* Follow OS-level dark mode preference if Streamlit is set
+               to "Use system setting" (so the logo updates instantly even
+               without a Streamlit rerun). */
+            @media (prefers-color-scheme: {'light' if current_theme == 'dark' else 'dark'}) {{
+                .railshot-logo {{
+                    background-image: url('{fallback_uri}');
+                }}
+            }}
+            </style>
+            <div class="railshot-logo"></div>
+        """, unsafe_allow_html=True)
+    with head_cols[1]:
+        st.title(_t("page_title"))
+        st.caption(_t("tagline"))
+elif _logo_light.exists() or _logo_dark.exists():
+    fallback = _logo_light if _logo_light.exists() else _logo_dark
+    head_cols = st.columns([1, 6])
+    head_cols[0].image(str(fallback), width=120)
+    with head_cols[1]:
+        st.title(_t("page_title"))
+        st.caption(_t("tagline"))
+else:
+    st.title("🚂 " + _t("page_title"))
+    st.caption(_t("tagline"))
 
 
 # ============================================================
 # Sidebar: global settings
 # ============================================================
 with st.sidebar:
+    # Auto-detect browser language on first visit
+    if "lang" not in st.session_state:
+        detected = _detect_browser_language()
+        st.session_state.lang = detected if detected else DEFAULT_LANG
+
     # Language selector at the top of the sidebar
     available_langs = sorted(TRANSLATIONS.keys())
     lang_labels = {
         code: TRANSLATIONS.get(code, {}).get("language_name", code.upper())
         for code in available_langs
     }
-    current_lang = st.session_state.get("lang", DEFAULT_LANG)
+    current_lang = st.session_state.lang
     selected_lang = st.selectbox(
         _t("sidebar.language"),
         options=available_langs,
@@ -234,7 +420,7 @@ with st.sidebar:
         help=_t("sidebar.add_rail_help"),
     )
     rail_extend = st.checkbox(
-        _t("sidebar.rail_extend"), value=False,
+        _t("sidebar.rail_extend"), value=True,
         help=_t("sidebar.rail_extend_help"),
     )
 

@@ -859,11 +859,13 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--rail-image", type=str, default=None,
                    help="Path to the rail template (PNG with alpha). "
                         "Default: rail.png in the script folder.")
-    p.add_argument("--rail-extend", action="store_true", default=False,
+    p.add_argument("--rail-extend", action=argparse.BooleanOptionalAction,
+                   default=True,
                    help="Extend canvas downwards by rail height. Default: "
-                        "off — rail is overlaid on the bottom edge of the "
-                        "wheels (so it looks like real life). With "
-                        "--rail-extend the rail hangs UNDER the coach.")
+                        "on — the rail hangs UNDER the wheels, growing the "
+                        "canvas. Use --no-rail-extend to overlay the rail "
+                        "on the bottom edge of the wheels instead "
+                        "(canvas height stays the same).")
 
     p.add_argument("--align", choices=["bottom", "center", "top"],
                    default="bottom",

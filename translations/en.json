@@ -24,7 +24,7 @@
   "sidebar.add_rail": "Add digital rail",
   "sidebar.add_rail_help": "Place a rail under the model.",
   "sidebar.rail_extend": "Extend canvas for rail",
-  "sidebar.rail_extend_help": "If on: canvas grows by rail height. If off (default): rail is overlaid on the wheels (more realistic).",
+  "sidebar.rail_extend_help": "If on (default): canvas grows downwards by rail height, rail sits below the wheels. If off: rail is overlaid on the bottom of the wheels (canvas height stays the same).",
 
   "sidebar.precrop": "Pre-crop",
   "sidebar.precrop_mode": "Mode",

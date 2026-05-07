@@ -1,3 +1,17 @@
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/logo-dark.png">
+    <source media="(prefers-color-scheme: light)" srcset="assets/logo-light.png">
+    <img src="assets/logo-light.png" alt="railshot logo" width="320">
+  </picture>
+</p>
+
+<p align="center">
+  <strong>Scaled. Clean. Ready for your layout.</strong>
+</p>
+
+---
+
 # railshot
 
 **Prepare model railway photos for digital control software** like Rocrail or

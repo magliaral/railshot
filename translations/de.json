@@ -24,7 +24,7 @@
   "sidebar.add_rail": "Digitale Schiene hinzufügen",
   "sidebar.add_rail_help": "Fügt eine Schiene unter dem Modell ein.",
   "sidebar.rail_extend": "Canvas für Schiene erweitern",
-  "sidebar.rail_extend_help": "Wenn an: Canvas wächst um Schienenhöhe. Wenn aus (Standard): Schiene wird über die Räder gelegt (realistischer).",
+  "sidebar.rail_extend_help": "Wenn an (Standard): Canvas wächst um Schienenhöhe nach unten, Schiene sitzt unter den Rädern. Wenn aus: Schiene wird über die Räder gelegt (Canvas-Höhe bleibt gleich).",
 
   "sidebar.precrop": "Vor-Crop",
   "sidebar.precrop_mode": "Modus",

@@ -1,8 +1,7 @@
 # ============================================================
-# Images: block everything except rail.png
+# Images: block everything except rail.png and assets/
 # ============================================================
-# rail.png is the only image that should be tracked
-# (it's the rail template needed by the script).
+# rail.png and the assets/ folder (logo, favicon) are tracked.
 # All other photos, screenshots, test outputs etc. stay local.
 *.png
 *.jpg
@@ -17,8 +16,10 @@
 *.heic
 *.raw
 
-# Negation: explicitly track rail.png
+# Negation: explicitly track rail.png and the assets folder
 !rail.png
+!assets/
+!assets/**
 
 # ============================================================
 # Claude Code / AI assistant files
