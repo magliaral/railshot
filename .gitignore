@@ -1,13 +1,88 @@
-# Byte-compiled / optimized / DLL files
+# ============================================================
+# Images: block everything except rail.png
+# ============================================================
+# rail.png is the only image that should be tracked
+# (it's the rail template needed by the script).
+# All other photos, screenshots, test outputs etc. stay local.
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.bmp
+*.tif
+*.tiff
+*.webp
+*.svg
+*.ico
+*.heic
+*.raw
+
+# Negation: explicitly track rail.png
+!rail.png
+
+# ============================================================
+# Claude Code / AI assistant files
+# ============================================================
+# These contain conversation history, planning, and prompts
+# that should not be in a public repo.
+.claude/
+.claude_code/
+CLAUDE.md
+CLAUDE.local.md
+.aider*
+.cursor/
+.cursorignore
+.cursorrules
+.continue/
+.copilot/
+.github-copilot/
+.codeium/
+.windsurf/
+.tabnine/
+
+# AI conversation logs and exports
+chat_history/
+conversations/
+*.claude.md
+*_claude.md
+claude-*.md
+*-claude.md
+
+# Plan/scratch/notes files commonly used with AI
+PLAN.md
+SCRATCH.md
+NOTES.md
+TODO.md
+.scratch/
+.notes/
+plan_*.md
+prompt_*.md
+*.prompt.md
+*.scratch
+*.scratchpad
+.plan
+.notes
+
+# Skill / instruction files (project-specific to your setup)
+*.skill
+*.skill.md
+.skills/
+SKILL.md
+
+# ============================================================
+# Python
+# ============================================================
 __pycache__/
 *.py[cod]
 *$py.class
+*.so
 
 # Distribution / packaging
 build/
 dist/
 *.egg-info/
 .eggs/
+*.egg
 
 # PyInstaller
 *.manifest
@@ -20,6 +95,8 @@ htmlcov/
 .coverage.*
 .cache
 .pytest_cache/
+.mypy_cache/
+.ruff_cache/
 
 # Virtual environments
 .env
@@ -31,30 +108,57 @@ env/
 # Jupyter Notebook
 .ipynb_checkpoints
 
-# Editor/IDE
+# ============================================================
+# Editor / IDE
+# ============================================================
 .idea/
 .vscode/
 *.swp
 *.swo
 *~
+*.iml
+.project
+.pydevproject
 
-# OS
+# ============================================================
+# Operating system
+# ============================================================
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
 Thumbs.db
+ehthumbs.db
+Desktop.ini
 
+# ============================================================
 # Project-specific: working directories
+# ============================================================
 photos/
 out/
 debug/
+debug_*/
+input/
+output/
 
-# Project-specific: rembg model cache (auto-downloaded)
+# rembg model cache (auto-downloaded, ~170 MB)
 .u2net/
 
-# Generated outputs
-*_v[0-9].png
-*_test.png
-test_*.png
-
+# ============================================================
 # Rocrail config (private to user)
+# ============================================================
 rocrail/
 *.xml.bak
+*.cfg.bak
+
+# ============================================================
+# Secrets and credentials (just in case)
+# ============================================================
+.env
+.env.local
+.env.*.local
+secrets.json
+credentials.json
+*.key
+*.pem
