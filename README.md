@@ -48,7 +48,7 @@ pip install -r requirements.txt
 ```
 
 On first run, `rembg` automatically downloads its ONNX model (~170 MB for
-`isnet-general-use`, cached in `~/.u2net/`).
+`u2net`, cached in `~/.u2net/`).
 
 ## Web UI (optional)
 
@@ -363,18 +363,18 @@ that's done by Rocrail dynamically.
 | **`--rail-image`**      | `rail.png`          | **Path to rail template** |
 | **`--rail-extend`**     | off                 | **Extend canvas instead of overlay** |
 | `--align`               | `bottom`            | Vertical alignment in canvas |
-| `--model`               | `isnet-general-use` | rembg model |
+| `--model`               | `u2net`             | rembg model |
 | `--debug-dir`           | —                   | Save intermediate steps as PNG |
 | `-v` / `--verbose`      | off                 | More verbose error output |
 
 ## rembg model recommendations
 
-- `isnet-general-use` — best all-rounder, slightly slower
-- `u2net` — robust classic
+- `u2net` — robust classic, default — best general results in practice
+- `isnet-general-use` — alternative all-rounder, slightly slower
 - `u2netp` — fast and small, slightly less accurate
 
-For shiny locos or fine pantographs, `isnet-general-use` typically gives
-the cleanest cutout.
+For most loco/wagon shots, `u2net` produces the cleanest cutout. Switch via
+`--model` (CLI) or the sidebar dropdown (Web UI) if a specific image needs it.
 
 ## Troubleshooting
 

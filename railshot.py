@@ -870,8 +870,8 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--align", choices=["bottom", "center", "top"],
                    default="bottom",
                    help="Vertical alignment in canvas (default: bottom)")
-    p.add_argument("--model", default="isnet-general-use",
-                   help="rembg model (default: isnet-general-use)")
+    p.add_argument("--model", default="u2net",
+                   help="rembg model (default: u2net)")
 
     p.add_argument("--pre-crop", type=str, default=None,
                    help="Crop to ROI BEFORE rembg. "

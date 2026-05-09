@@ -449,7 +449,7 @@ with st.sidebar:
     with st.expander(_t("sidebar.advanced")):
         rembg_model = st.selectbox(
             _t("sidebar.rembg_model"),
-            options=["isnet-general-use", "u2net", "u2netp"],
+            options=["u2net", "isnet-general-use", "u2netp"],
             index=0,
         )
         h_alpha_threshold = st.slider(_t("sidebar.h_alpha"), 64, 200, 128, 8)
